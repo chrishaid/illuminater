@@ -1,10 +1,16 @@
 Package: illuminater
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Illuminate reporting
 Version: 0.1
 Date: 2015-08-26
 Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
+Maintainer: Who to complain to <chaid@kippchicago.org>
+Description: "A suite of functions to connect to Illuminate data, pull it down,
+    aggregate it, visualize, and email it to end users."
+License: MIT
 LazyData: TRUE
+Imports: 
+    dplyr,
+    tidyr,
+    scales
+Depends: ggplot2

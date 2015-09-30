@@ -1,6 +1,6 @@
 # Hello, world!
 #
-# This is an example function named 'hello' 
+# This is an example function named 'hello'
 # which prints 'Hello, world!'.
 #
 # You can learn more about package authoring with RStudio at:
@@ -16,3 +16,6 @@
 hello <- function() {
   print("Hello, world!")
 }
+require(dplyr)
+ill_db <- RSQLServer::src_sqlserver(server = "54.172.11.151", database="Illuminate_mirror",
+                                    properties = list(user = "silo", password="silKIPP1"))

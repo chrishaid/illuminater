@@ -130,7 +130,7 @@ mastery_grid_plot <- function(results,
                   Mastered = percent_correct >= 80,
                   Standard_text = "Total Items Correct",
                   label = paste0(round(percent_correct,0),
-                               " Avg")
+                               "% Avg")
                   )
 
   assm_out3 <- dplyr::rbind_list(assm_out_2,
@@ -140,7 +140,17 @@ mastery_grid_plot <- function(results,
     dplyr::mutate_(School = sprintf("ifelse(schoolid == %s, '%s', 'Mastery')",
                            school_id,
                            school_name)
-                   )
+                   ) %>%
+    dplyr::filter(!(schoolid == 0 &
+                    Standard_text =="Mastered")
+                  ) %>% #removes incorrect "Mastered" calc
+    dplyr::mutate(Standard_text = ifelse(schoolid==0 &
+                                           Standard_text == "Total Items Correct" &
+                                           grepl("Objectives", assm_name),
+                                         "Mastered",
+                                         Standard_text
+                                         )
+                  )
 
   assm_date <- assm_out3 %>%
     dplyr::mutate(administered_at=ifelse(assm_name=="Objectives\nMastered\nby Student",

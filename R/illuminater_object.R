@@ -40,30 +40,29 @@ illuminater.default <- function(ill_con, roster, roster_table_name, ...) {
   regex_unit <- "^\\d\\.[a-z]+\\.u\\d\\.[a-z]{3,4}$"
 
   assm_results2 <- assm_results_collected %>%
-    dplyr::mutate(local_id_conforms = (grepl(regex_fsa,
-                                            tolower(local_assessment_id)) |
-                                         grepl(regex_unit,
-                                               tolower(local_assessment_id)
-                                               )
-                                       ),
+    dplyr::mutate(local_assessment_id =
+                    tolower(stringr::str_trim(local_assessment_id)),
+                  local_id_conforms = (grepl(regex_fsa, local_assessment_id) |
+                                         grepl(regex_unit, local_assessment_id)
+                                               ),
                   assm_type = ifelse(grepl(regex_fsa,
-                                           tolower(local_assessment_id)
+                                           local_assessment_id
                                            ),
                                      "FSA",
                                      NA
                                      ),
                   assm_type = ifelse(grepl(regex_unit,
-                                           tolower(local_assessment_id)
+                                           local_assessment_id
                                            ),
                                      "Unit",
                                      assm_type
                                      ),
-                  assm_grade = stringr::str_extract(tolower(tolower(local_assessment_id)), "^\\d"),
-                  assm_subj = stringr::str_extract(tolower(tolower(local_assessment_id)), "[a-z]+"),
-                  assm_unit = stringr::str_extract(tolower(tolower(local_assessment_id)), "u\\d"),
-                  assm_week = stringr::str_extract(tolower(tolower(local_assessment_id)), "w\\d"),
+                  assm_grade = stringr::str_extract(local_assessment_id, "^\\d"),
+                  assm_subj = stringr::str_extract(local_assessment_id, "[a-z]+"),
+                  assm_unit = stringr::str_extract(local_assessment_id, "u\\d"),
+                  assm_week = stringr::str_extract(local_assessment_id, "w\\d"),
                   assm_week = ifelse(is.na(assm_week) & assm_type == "Unit", 99, assm_week),
-                  assm_school = stringr::str_extract(tolower(tolower(local_assessment_id)), "[a-z]+$"),
+                  assm_school = stringr::str_extract(local_assessment_id, "[a-z]+$"),
                   assm_name = sprintf("%s %s Unit %s, Week %s\nType: %s",
                                       assm_grade,
                                       gsub("\\b([a-z])([a-z]+)", "\\U\\1\\E\\2",assm_subj, perl = TRUE),

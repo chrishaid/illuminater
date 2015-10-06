@@ -27,7 +27,7 @@ mastery_grid_plot <- function(results,
   assm_out <- assm_results3 %>%
     dplyr::mutate(Mastered = percent_correct >= 80,
            Standard_text = paste0(stringr::str_wrap(description.x,
-                                                    width=15),
+                                                    width=12),
                                   "\n(",
                                   custom_code,
                                   ")"
@@ -49,7 +49,7 @@ mastery_grid_plot <- function(results,
     dplyr::summarize(points_possible = sum(points_possible),
                      points = sum(points),
                      percent_correct = points/points_possible * 100,
-                     Standard_text = "Total Items Correct") %>%
+                     Standard_text = "Total\nItems\nCorrect") %>%
     dplyr::mutate(Mastered = percent_correct >= 80,
                   label = paste0(round(percent_correct, 0),
                                  "% (",
@@ -106,7 +106,7 @@ mastery_grid_plot <- function(results,
     dplyr::summarize(points_possible = sum(points_possible),
                      points = sum(points),
                      percent_correct = points/points_possible * 100,
-                     Standard_text = "Total Items Correct") %>%
+                     Standard_text = "Total\nItems\nCorrect") %>%
     dplyr::mutate(Mastered = percent_correct >= 80,
                   label = paste0(round(percent_correct, 0),
                                  "% (",
@@ -128,7 +128,7 @@ mastery_grid_plot <- function(results,
     dplyr::mutate(lastfirst = "Students Mastery \nof Objective",
                   schoolid = 0,
                   Mastered = percent_correct >= 80,
-                  Standard_text = "Total Items Correct",
+                  Standard_text = "Total\nItems\nCorrect",
                   label = paste0(round(percent_correct,0),
                                "% Avg")
                   )
@@ -145,7 +145,7 @@ mastery_grid_plot <- function(results,
                     Standard_text =="Mastered")
                   ) %>% #removes incorrect "Mastered" calc
     dplyr::mutate(Standard_text = ifelse(schoolid==0 &
-                                           Standard_text == "Total Items Correct" &
+                                           Standard_text == "Total\nItems\nCorrect" &
                                            grepl("Objectives", assm_name),
                                          "Mastered",
                                          Standard_text
@@ -209,7 +209,7 @@ mastery_grid_plot <- function(results,
                                  include.lowest = TRUE),
           Standard_text = factor(Standard_text,
                                  levels = c(objective_order$Standard_text,
-                                            "Total Items Correct",
+                                            "Total\nItems\nCorrect",
                                             "Mastered")
                                    ),
           week_number = gsub(".+Week (\\d+).+", "\\1", assm_name),
@@ -242,12 +242,12 @@ mastery_grid_plot <- function(results,
 
     assm_out5 <- assm_out4 %>%
       dplyr::mutate(mastery_color =
-                      ifelse(Standard_text == "Total Items Correct",
+                      ifelse(Standard_text == "Total\nItems\nCorrect",
                              "gray66",
                              mastery_cols_fn(pct_correct_cat)
                              ),
                     text_color =
-                      ifelse(Standard_text == "Total Items Correct",
+                      ifelse(Standard_text == "Total\nItems\nCorrect",
                              mastery_cols_fn(pct_correct_cat),
                              "gray33"),
                     label = stringr::str_replace(label, "\\s", "\n"))
@@ -263,7 +263,7 @@ mastery_grid_plot <- function(results,
               alpha=.8) +
     geom_text(aes(label=label,
                   color=text_color),
-              size=2.25
+              size=2
               ) +
     facet_grid(School~Name, scales = "free", space =  "free") +
 #     scale_fill_manual(values = c('#ff001a',
@@ -275,7 +275,7 @@ mastery_grid_plot <- function(results,
     scale_color_identity() +
     theme_bw() +
     theme(axis.text.y = element_text(size=4.5),
-          axis.text.x = element_text(size=4.5),
+          axis.text.x = element_text(size=4),
           strip.text.x = element_text(size=5),
           strip.text.y=element_text(size=5, angle=0)) +
     xlab("KIPP Chicago Objective") +
@@ -287,3 +287,119 @@ mastery_grid_plot <- function(results,
 
 
 }
+
+#' Plot a grade_level mastery summary grid for a unit's worth of tests
+#'
+#' @param results illuminate results from an illuminater object
+#' @param roster a roster to filter by
+#' @param school_id a school id
+#' @param school the name of the school with the matching id
+#' @param ... arguments passed to \code{\link[dplyr]{filter}}
+#'
+#' @return a \code{ggolot2 object}
+#' @export
+mastery_long_plot <- function(results,
+                              roster,
+                              school_id,
+                              school_name,
+                              ...) {
+
+
+  results_filtered <- results %>%
+    dplyr::mutate(local_student_id = as.integer(local_student_id)) %>%
+    dplyr::inner_join(roster,
+                      by = c("local_student_id" = "student_number")
+    ) %>%
+    dplyr::filter_(sprintf("schoolid == %s", school_id),
+                   "points_possible > 0") %>% #removes extra_credit
+    dplyr::filter(...)
+
+  results_stu_obj_assm <- results_filtered %>%
+    dplyr::mutate(mastered = percent_correct >= 80,
+                  objective = paste(custom_code, stringr::str_wrap(description.x,
+                                                                   width = 30),
+                                    sep="\n")
+                  ) %>%
+    dplyr::group_by(local_student_id,
+                    assm_name,
+                    assm_week,
+                    assm_type,
+                    custom_code,
+                    objective) %>%
+    dplyr::summarize(points = sum(points),
+                     points_possible = sum(points_possible),
+                     percent_correct = points/points_possible*100,
+                     mastered = percent_correct >= 80)
+
+  stopifnot(nrow(results_stu_obj_assm) > 0 )
+
+  stu_mastery <- results_stu_obj_assm %>%
+    dplyr::group_by(assm_name,
+                    assm_week,
+                    assm_type,
+                    custom_code,
+                    objective) %>%
+    dplyr::summarize(n_stus = n(),
+              n_mastered = sum(mastered),
+              pct_mastered = round(n_mastered/n_stus*100),
+              avg_score = sum(points)/sum(points_possible)*100)
+
+
+  assm_order <- stu_mastery %>%
+    ungroup %>%
+    dplyr::select(assm_name, assm_week) %>%
+    dplyr::mutate(week = as.integer(stringr::str_extract(assm_week,
+                                              "\\d+"))
+                  ) %>%
+    unique %>%
+    arrange(week)
+
+
+  # create color scale
+  mastery_cols <- c('#ff001a',
+                    '#ffbf42',
+                    '#fefe56',
+                    '#91fd57',
+                    '#00ca3f')
+
+  mastery_cols_fn <- scales::col_factor(palette = mastery_cols,
+                                        domain = unique(assm_out4$pct_correct_cat)
+  )
+
+stu_mastery_2  <- stu_mastery %>%
+    ungroup %>%
+    mutate(assm_name = factor(assm_name,
+                              levels = assm_order$assm_name),
+           label = sprintf("%s%% mastered\n%s%% average",
+                           round(pct_mastered),
+                           round(avg_score)
+                           ),
+           mastery_cat = cut(pct_mastered,right = FALSE,
+                            breaks = c(0,60,70,80,90,100),
+                            include.lowest = TRUE),
+           mastery_col = mastery_cols_fn(mastery_cat)
+
+           )
+
+categories <- stu_mastery_2 %>%
+  dplyr::select(mastery_cat) %>%
+  dplyr::arrange(mastery_cat) %>%
+  unique %>%
+  dplyr::mutate(mastery_cat = as.character(mastery_cat))
+
+p <- ggplot(stu_mastery_2,
+            aes(x = assm_name,
+                y = objective)) +
+  geom_tile(aes(fill = mastery_col),
+            color = "darkgray") +
+  geom_text(aes(label = label)) +
+  scale_fill_identity() +
+  theme_bw() +
+  xlab("Assessment") +
+  ylab("Objective")
+
+
+p
+
+}
+

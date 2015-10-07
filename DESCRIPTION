@@ -12,6 +12,9 @@ LazyData: TRUE
 Imports: 
     dplyr,
     tidyr,
-    scales
+    scales,
+    RSQLServer,
+    stringr,
+    lubridate
 Depends: ggplot2
 Suggests: testthat

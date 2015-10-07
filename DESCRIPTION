@@ -14,3 +14,4 @@ Imports:
     tidyr,
     scales
 Depends: ggplot2
+Suggests: testthat

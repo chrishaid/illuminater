@@ -143,7 +143,7 @@ ex_ill_obj$roster <- roster_new2
 ex_ill_obj$results <- results_new
 
 #save to data
-devtools::use_data(ex_ill_obj)
+devtools::use_data(ex_ill_obj, overwrite = TRUE)
 
 
 

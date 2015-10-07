@@ -362,8 +362,16 @@ mastery_long_plot <- function(results,
                     '#91fd57',
                     '#00ca3f')
 
+
+  domain_cuts <- unique(cut(0:100,
+                     right = FALSE,
+                     breaks = c(0,60,70,80,90,100),
+                    include.lowest = TRUE)
+                 )
+
+
   mastery_cols_fn <- scales::col_factor(palette = mastery_cols,
-                                        domain = unique(assm_out4$pct_correct_cat)
+                                        domain = domain_cuts
   )
 
 stu_mastery_2  <- stu_mastery %>%

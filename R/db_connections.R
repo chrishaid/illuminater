@@ -28,7 +28,7 @@ connect_illuminate <- function(server,
   if (!db_type %in% c("warehouse", "direct")) stop("db_type can only be 'warehouse' or 'direct'.")
 
   if (db_type == "warehouse") {
-    ill_db <- RSQLServer::src_sqlserver(server = server,
+    ill_db <- RSQLServer:::src_sqlserver(server = server,
                                         database = database,
                                         properties = list(user = user,
                                                           password = password

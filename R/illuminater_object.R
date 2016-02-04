@@ -36,8 +36,8 @@ illuminater.default <- function(ill_con, roster, roster_table_name, ...) {
   assm_results_collected <- dplyr::collect(assm_results)
   prog$tick()$print()
 
-  regex_fsa <- "^\\d\\.[a-z]+\\.u\\d\\.w\\d\\.[a-z]{3,4}$"
-  regex_unit <- "^\\d\\.[a-z]+\\.u\\d\\.[a-z]{3,4}$"
+  regex_fsa <- "^\\d\\.[a-z]+\\.u\\d{1,2}\\.w\\d{1,2}\\.[a-z]{3,4}$"
+  regex_unit <- "^\\d\\.[a-z]+\\.u\\d{1,2}\\.[a-z]{3,4}$"
 
   assm_results2 <- assm_results_collected %>%
     dplyr::mutate(local_assessment_id =

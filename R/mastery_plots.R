@@ -159,10 +159,10 @@ mastery_grid_plot <- function(results,
                   date=lubridate::ymd(administered_at),
                   week_number = gsub(".+Week (\\d+).+", "\\1", assm_name),
                   week_number = ifelse(grepl("Unit$", week_number),
-                                       99,
+                                       "99",
                                        week_number),
                   week_number = ifelse(grepl("Objectives", week_number),
-                                       999,
+                                       "999",
                                        week_number),
                   week_number = as.integer(week_number)
     )  %>%
@@ -175,7 +175,7 @@ mastery_grid_plot <- function(results,
     dplyr::group_by(student_number) %>%
     dplyr::mutate(week_number = gsub(".+Week (\\d+).+", "\\1", assm_name),
                   week_number = ifelse(grepl("Unit$", week_number),
-                                       99,
+                                       "99",
                                        week_number),
                   week_number = as.integer(week_number)
                   ) %>%
